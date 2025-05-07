@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이 페이지</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500&display=swap');
+
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+            --gradient-1: linear-gradient(45deg, #E6B8AF, #F4CCCC);
+            --gradient-2: linear-gradient(45deg, #D5A6BD, #E6B8AF);
+            --gradient-3: linear-gradient(45deg, #C9B6E4, #E1C16E);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #F5E6E8, #D5C6E0);
+            color: #4A4A4A;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            background: rgba(245, 230, 232, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(213, 198, 224, 0.3);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin: 0;
+            background: linear-gradient(45deg, #9B6B9E, #B88EAD);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: #9B6B9E;
+            font-size: 26px;
+            cursor: pointer;
+            padding: 10px;
+            transition: all 0.4s ease;
+        }
+
+        .back-button:hover {
+            transform: scale(1.1);
+            color: #B88EAD;
+        }
+
+        .history-container {
+            margin-top: 100px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            max-width: 1600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .history-card {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 25px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(213, 198, 224, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(213, 198, 224, 0.1);
+        }
+
+        .history-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, 
+                rgba(230, 184, 175, 0.1),
+                rgba(213, 198, 224, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .history-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(155, 107, 158, 0.2);
+            border-color: rgba(155, 107, 158, 0.4);
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .history-card:hover::before {
+            opacity: 1;
+        }
+
+        .artist-name {
+            font-size: 22px;
+            font-weight: 600;
+            color: #9B6B9E;
+            margin-bottom: 12px;
+            background: linear-gradient(45deg, #9B6B9E, #B88EAD);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.4s ease;
+        }
+
+        .history-card:hover .artist-name {
+            background: linear-gradient(45deg, #B88EAD, #D5A6BD);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .song-title {
+            font-size: 30px;
+            font-weight: 600;
+            color: #4A4A4A;
+            margin: 0;
+            line-height: 1.4;
+            transition: all 0.4s ease;
+        }
+
+        .history-card:hover .song-title {
+            color: #2C2C2C;
+            text-shadow: 0 0 20px rgba(155, 107, 158, 0.15);
+        }
+
+        .play-icon {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            font-size: 30px;
+            color: rgba(155, 107, 158, 0.5);
+            transition: all 0.4s ease;
+        }
+
+        .history-card:hover .play-icon {
+            color: #9B6B9E;
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        @media (max-width: 768px) {
+            .history-container {
+                grid-template-columns: 1fr;
+                padding: 10px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <h1>재생 이력</h1>
+        <button class="back-button" onclick="window.location.href='mainpage.html'">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+    </div>
+
+    <div class="history-container">
+        <div class="history-card">
+            <div class="artist-name">투모로우바이투게더</div>
+            <h2 class="song-title">Love Language</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">10CM</div>
+            <h2 class="song-title">너에게 닿기를</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">제니</div>
+            <h2 class="song-title">like JENNIE</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">르세라핌</div>
+            <h2 class="song-title">HOT</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">아이브</div>
+            <h2 class="song-title">REBEL HEART</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">지드래곤</div>
+            <h2 class="song-title">TOO BAD (feat. Anderson .Paak)</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">키키</div>
+            <h2 class="song-title">I DO ME</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">아이브</div>
+            <h2 class="song-title">ATTITUDE</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">보이넥스트도어</div>
+            <h2 class="song-title">오늘만 I LOVE YOU</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">투어스</div>
+            <h2 class="song-title">마음 따라 뛰는 건 멋지지 않아?</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">하츠투하츠</div>
+            <h2 class="song-title">The Chase</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">마크</div>
+            <h2 class="song-title">1999</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">지드래곤</div>
+            <h2 class="song-title">TAKE ME</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">르세라핌</div>
+            <h2 class="song-title">Come Over</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">피프티피프티</div>
+            <h2 class="song-title">Pookie</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">이즈나</div>
+            <h2 class="song-title">SIGN</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">미야오</div>
+            <h2 class="song-title">HANDS UP</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">제니</div>
+            <h2 class="song-title">Love Hangover (feat. Dominic Fike)</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">엔시티 위시</div>
+            <h2 class="song-title">poppop</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">스테이씨</div>
+            <h2 class="song-title">BEBE</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">제이홉</div>
+            <h2 class="song-title">Sweet Dreams (feat. Miguel)</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">엔믹스</div>
+            <h2 class="song-title">KNOW ABOUT ME</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">아일릿</div>
+            <h2 class="song-title">Almond Chocolate (Korean Ver.)</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">라이즈</div>
+            <h2 class="song-title">Hug (포옹)</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+        <div class="history-card">
+            <div class="artist-name">부석순 (세븐틴)</div>
+            <h2 class="song-title">청바지</h2>
+            <i class="fas fa-play play-icon"></i>
+        </div>
+    </div>
+
+    <script>
+        // 카드 클릭 시 재생 기능 추가 예정
+        document.querySelectorAll('.history-card').forEach(card => {
+            card.addEventListener('click', () => {
+                // 재생 기능 구현
+            });
+        });
+    </script>
+</body>
+</html> 
