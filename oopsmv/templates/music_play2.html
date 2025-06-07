@@ -109,40 +109,24 @@
         console.log("✅ 서버 응답 상태코드:", res.status);
         return res.json();
       })
-      .then(params => {
-  console.log("✅ 추천 결과 (params):");
-  for (const [key, value] of Object.entries(params)) {
-    console.log(`  ${key}: ${value}`);
-  }
-
-  // ✅ Jamendo API URL 구성
-  const url = new URL("https://api.jamendo.com/v3.0/tracks/");
-  url.searchParams.set("client_id", "602b9767");
-
-  for (const [key, value] of Object.entries(params)) {
-    if (key !== "client_id") {
-      url.searchParams.set(key, value);
-    }
-  }
-
-  const fullURL = url.toString();
-  console.log("🎧 Jamendo 요청 URL:", fullURL);
-
-  return fetch(fullURL);
-})
-
-      .then(res => res.json())
       .then(data => {
-        console.log("🎵 Jamendo 응답 결과:", data);
-        const track = data.results?.[0];
-        if (track) {
-          document.getElementById("track-title").textContent = track.name;
-          document.getElementById("track-artist").textContent = track.artist_name;
-          document.getElementById("audio").src = track.audio;
-          document.getElementById("audio").play();
-        } else {
+        console.log("🎵 서버 응답 데이터:", data);
+
+        const analysis = data.analysis;
+        const tracks = data.tracks;
+
+        if (!tracks || tracks.length === 0) {
           alert("추천 결과가 없습니다. 다른 조건으로 시도해보세요.");
+          return;
         }
+
+        const track = tracks[0]; // 첫 곡만 재생
+        document.getElementById("track-title").textContent = track.name;
+        document.getElementById("track-artist").textContent = track.artist_name;
+        document.getElementById("audio").src = track.audio;
+        document.getElementById("audio").play();
+
+        document.getElementById("analysis-output").textContent = analysis;
       })
       .catch(err => {
         console.error("❌ 오류:", err);
@@ -150,8 +134,6 @@
       });
     }
   </script>
-  
-  
 
 </body>
 </html>

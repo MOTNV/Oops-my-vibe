@@ -44,76 +44,63 @@
     <audio id="audioPlayer" src="your-music.mp3"></audio>
 
     <script>
-        const video = document.getElementById('bgVideo');
-        const audio = document.getElementById('audioPlayer');
-        const playPauseButton = document.querySelector('.play-pause i');
-        const timeDisplay = document.getElementById('currentTime');
-        const progressBar = document.getElementById('progressBar');
-        let isPlaying = false;
-        let progressInterval;
-        let currentProgress = 0;
-        const totalDuration = 180; // 3분 = 180초
-
-        function updateTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            timeDisplay.textContent = `${hours}:${minutes}`;
-        }
-
-        function updateProgress() {
-            currentProgress += 0.1; // 0.1초마다 진행
-            if (currentProgress >= totalDuration) {
-                currentProgress = 0;
-            }
-            const progress = (currentProgress / totalDuration) * 100;
-            progressBar.style.width = progress + '%';
-        }
-
-        function seekTo(event) {
-            const progressContainer = document.querySelector('.progress-container');
-            const percent = event.offsetX / progressContainer.offsetWidth;
-            currentProgress = percent * totalDuration;
-            const progress = (currentProgress / totalDuration) * 100;
-            progressBar.style.width = progress + '%';
-        }
-
-        // 시간 업데이트 시작
-        updateTime();
-        setInterval(updateTime, 1000);
-
-        function togglePlay() {
-            if (isPlaying) {
-                video.pause();
-                audio.pause();
-                playPauseButton.classList.remove('fa-pause');
-                playPauseButton.classList.add('fa-play');
-                clearInterval(progressInterval);
+        function recommend() {
+          const scenario = document.getElementById("scenario");
+          const weather = document.getElementById("weather");
+          const analysisOutput = document.getElementById("analysis-output");
+    
+          if (!scenario || !weather) {
+            alert("선택 항목을 찾을 수 없습니다.");
+            return;
+          }
+    
+          const [emotion, activity] = scenario.value.split("|");
+          console.log("🔍 전송할 추천 요청 데이터:", { emotion, activity, weather: weather.value });
+    
+          fetch("http://localhost:5000/recommend", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ emotion, activity, weather: weather.value })
+          })
+          .then(res => {
+            console.log("✅ 서버 응답 상태코드:", res.status);
+            return res.json();
+          })
+          .then(data => {
+            console.log("✅ 추천 결과 (data):", data);
+    
+            // 1) 분석 리포트 출력
+            if (data.analysis) {
+              analysisOutput.textContent = data.analysis;
             } else {
-                video.play();
-                audio.play();
-                playPauseButton.classList.remove('fa-play');
-                playPauseButton.classList.add('fa-pause');
-                progressInterval = setInterval(updateProgress, 100);
+              analysisOutput.textContent = "분석 리포트를 받아오지 못했습니다.";
             }
-            isPlaying = !isPlaying;
+    
+            // 2) 트랙 리스트 중 랜덤 1개 선택 및 재생
+            const tracks = data.tracks || [];
+            if (tracks.length === 0) {
+              alert("추천 결과가 없습니다. 다른 조건으로 시도해보세요.");
+              return;
+            }
+            const track = tracks[Math.floor(Math.random() * tracks.length)];
+            console.log("🎶 선택된 트랙:", track);
+    
+            if (!track.audio) {
+              alert("선택된 음악에 재생 가능한 오디오가 없습니다.");
+              return;
+            }
+    
+            document.getElementById("track-title").textContent  = track.name;
+            document.getElementById("track-artist").textContent = track.artist_name;
+            const audioEl = document.getElementById("audio");
+            audioEl.src = track.audio;
+            audioEl.play();
+          })
+          .catch(err => {
+            console.error("❌ 오류:", err);
+            alert("추천 요청 중 오류가 발생했습니다.");
+          });
         }
-
-        function nextTrack() {
-            window.location.href = 'secondpage.html';
-        }
-
-        function previousTrack() {
-            window.location.href = 'thirdpage.html';
-        }
-
-        // 페이지 로드 시 자동 재생
-        window.onload = function() {
-            video.play();
-            audio.play();
-            isPlaying = true;
-            progressInterval = setInterval(updateProgress, 100);
-        }
-    </script>
+      </script>
 </body>
 </html>
