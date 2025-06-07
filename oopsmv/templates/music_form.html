@@ -1,0 +1,48 @@
+<form action="/music/register" method="POST">
+  <input type="text" name="title" placeholder="Title" required />
+  <input type="text" name="artist" placeholder="Artist" />
+  <input type="text" name="genre" placeholder="Genre" />
+  <input type="text" name="mood" placeholder="Mood" />
+  <input type="number" name="duration_sec" placeholder="Duration (sec)" />
+  <input type="text" name="file_path" placeholder="File Path or URL" />
+  <input type="text" name="youtube_id" placeholder="YouTube ID" />
+
+  <select name="weather">
+    <option value="sunny">sunny ☀️</option>
+    <option value="rainy">rainy 🌧</option>
+    <option value="cloudy">cloudy ☁️</option>
+    <option value="snowy">snowy ❄️</option>
+    <option value="stormy">stormy 🌩</option>
+  </select>
+
+  <select name="time_of_day">
+    <option value="morning">morning</option>
+    <option value="afternoon">afternoon</option>
+    <option value="evening">evening</option>
+    <option value="night">night</option>
+  </select>
+
+  <select name="theme">
+    <option value="focus">focus</option>
+    <option value="relax">relax</option>
+    <!-- 여기에 ENUM 값들 추가 -->
+  </select>
+
+  <button type="submit">Register Music</button>
+</form>
+
+<!-- 메인 페이지로 돌아가기 버튼 -->
+<div style="margin-top: 20px; text-align: center;">
+  <a href="front1.html" style="
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #444;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+  ">
+    ← 메인 페이지로
+  </a>
+</div>
+

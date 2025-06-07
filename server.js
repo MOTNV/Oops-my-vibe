@@ -1,60 +1,104 @@
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
+const axios = require('axios');
 const path = require('path');
+const musicRouter = require('./routes/music');
+const db = require('./db');
 
 const app = express();
 const port = 3000;
 
+// ✅ JSON 요청 파싱 미들웨어 추가!
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 // ───────────────────────────────────────
 // ✅ 미들웨어 설정
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
   secret: 'oopsmv-secret-key',
   resave: false,
   saveUninitialized: true
 }));
 
-// ✅ 정적 파일 제공 (예: /static/style.css 등)
-app.use(express.static(path.join(__dirname, 'oopsmv', 'static')));
+// ✅ 정적 파일 제공 (예: /oopsmv/templates/front1.html 등)
+app.use(express.static(path.join(__dirname, 'oopsmv', 'templates')));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// ───────────────────────────────────────
-// ✅ 임시 사용자 정보 (비밀번호는 해시로 저장)
-const users = {
-  jsm: bcrypt.hashSync('1234', 10),  // 아이디: jsm, 비번: 1234
-};
+// ✅ 템플릿 디렉토리 경로 변수
+const TEMPLATE_DIR = path.join(__dirname, 'oopsmv', 'templates');
+
+// ✅ music 라우터
+app.use('/music', musicRouter);
+
+app.get('/music_form', (req, res) => {
+  res.sendFile(path.join(__dirname, 'oopsmv', 'templates', 'music_play2.html'));
+});
 
 // ───────────────────────────────────────
 // ✅ 라우트 설정
 
-// 루트 페이지
+// 메인 페이지
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'oopsmv', 'templates', 'index.html'));
+  res.sendFile(path.join(__dirname, 'oopsmv', 'templates', 'front1.html'));
 });
 
-// 로그인 폼 페이지
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'oopsmv', 'templates', 'login.html'));
-});
 
-// 로그인 처리
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  const hashed = users[username];
-
-  if (hashed && bcrypt.compareSync(password, hashed)) {
-    req.session.user = username;
-    res.redirect('/dashboard');
+// 세션 사용자 정보 API (fetch로 username 가져오기)
+app.get('/session-user', (req, res) => {
+  if (req.session.username) {
+    res.json({ username: req.session.username });
   } else {
-    res.send('❌ 로그인 실패: 아이디 또는 비밀번호를 확인하세요.');
+    res.json({ username: null });
   }
 });
 
-// 대시보드
-app.get('/dashboard', (req, res) => {
-  if (!req.session.user) return res.redirect('/login');
-  res.send(`👋 ${req.session.user}님, 대시보드에 오신 것을 환영합니다.`);
+// 회원가입
+app.post('/register', async (req, res) => {
+  const { username, password, nickname } = req.body;
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const sql = 'INSERT INTO users (username, password, nickname) VALUES (?, ?, ?)';
+    db.query(sql, [username, hashedPassword, nickname], (err, result) => {
+      if (err) {
+        console.error('회원가입 실패:', err);
+        return res.send('회원가입 실패');
+      }
+      res.send('회원가입 성공!');
+    });
+  } catch (error) {
+    console.error('서버 오류:', error);
+    res.send('서버 오류 발생');
+  }
+});
+
+// 로그인
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  const sql = 'SELECT * FROM users WHERE username = ?';
+  db.query(sql, [username], async (err, results) => {
+    if (err) {
+      console.error('DB 오류:', err);
+      return res.send('서버 오류');
+    }
+
+    if (results.length === 0) {
+      return res.send('존재하지 않는 사용자입니다.');
+    }
+
+    const user = results[0];
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (isMatch) {
+      req.session.username = user.username;
+      res.redirect('/');
+    } else {
+      res.send('비밀번호가 틀렸습니다.');
+    }
+  });
 });
 
 // 로그아웃
@@ -62,6 +106,22 @@ app.get('/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/');
   });
+});
+
+app.post('/music/play', async (req, res) => {
+  const { emotion, activity, weather } = req.body;
+
+  try {
+    const response = await axios.post('http://localhost:5000/recommend', {
+      emotion, activity, weather
+    });
+
+    // Flask 서버에서 받아온 추천 결과를 클라이언트에 그대로 전달
+    res.json(response.data);
+  } catch (error) {
+    console.error('Flask 서버 호출 실패:', error.message);
+    res.status(500).send('추천 처리 실패');
+  }
 });
 
 // ───────────────────────────────────────

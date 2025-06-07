@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>음악 플레이어</title>
+    <link rel="stylesheet" href="mainpage.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="mainpage__video-container">
+        <video id="bgVideo" autoplay loop muted>
+            <source src="youtube_Y6apftTqJAY_1280x720_h264.mp4" type="video/mp4">
+            브라우저가 비디오를 지원하지 않습니다.
+        </video>
+    </div>
+
+    <div class="mainpage__main-content">
+        <div class="mainpage__time-display" id="currentTime">00:00</div>
+        <div class="mainpage__weather-emoji">🌧️</div>
+    </div>
+
+    <div class="player">
+        <div class="player__song-info">
+            <div class="player__song-title">Rain</div>
+            <div class="player__artist">Tae-yeon</div>
+        </div>
+        <div class="player__progress-container" onclick="seekTo(event)">
+            <div class="player__progress-bar" id="progressBar"></div>
+        </div>
+        <div class="player__controls">
+            <button class="player__button" onclick="previousTrack()">
+                <i class="fas fa-backward"></i>
+            </button>
+            <button class="player__button player__button--play-pause" onclick="togglePlay()">
+                <i class="fas fa-pause"></i>
+            </button>
+            <button class="player__button" onclick="nextTrack()">
+                <i class="fas fa-forward"></i>
+            </button>
+        </div>
+    </div>
+
+    <audio id="audioPlayer" src="your-music.mp3"></audio>
+
+    <script>
+        const video = document.getElementById('bgVideo');
+        const audio = document.getElementById('audioPlayer');
+        const playPauseButton = document.querySelector('.play-pause i');
+        const timeDisplay = document.getElementById('currentTime');
+        const progressBar = document.getElementById('progressBar');
+        let isPlaying = false;
+        let progressInterval;
+        let currentProgress = 0;
+        const totalDuration = 180; // 3분 = 180초
+
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            timeDisplay.textContent = `${hours}:${minutes}`;
+        }
+
+        function updateProgress() {
+            currentProgress += 0.1; // 0.1초마다 진행
+            if (currentProgress >= totalDuration) {
+                currentProgress = 0;
+            }
+            const progress = (currentProgress / totalDuration) * 100;
+            progressBar.style.width = progress + '%';
+        }
+
+        function seekTo(event) {
+            const progressContainer = document.querySelector('.progress-container');
+            const percent = event.offsetX / progressContainer.offsetWidth;
+            currentProgress = percent * totalDuration;
+            const progress = (currentProgress / totalDuration) * 100;
+            progressBar.style.width = progress + '%';
+        }
+
+        // 시간 업데이트 시작
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        function togglePlay() {
+            if (isPlaying) {
+                video.pause();
+                audio.pause();
+                playPauseButton.classList.remove('fa-pause');
+                playPauseButton.classList.add('fa-play');
+                clearInterval(progressInterval);
+            } else {
+                video.play();
+                audio.play();
+                playPauseButton.classList.remove('fa-play');
+                playPauseButton.classList.add('fa-pause');
+                progressInterval = setInterval(updateProgress, 100);
+            }
+            isPlaying = !isPlaying;
+        }
+
+        function nextTrack() {
+            window.location.href = 'secondpage.html';
+        }
+
+        function previousTrack() {
+            window.location.href = 'thirdpage.html';
+        }
+
+        // 페이지 로드 시 자동 재생
+        window.onload = function() {
+            video.play();
+            audio.play();
+            isPlaying = true;
+            progressInterval = setInterval(updateProgress, 100);
+        }
+    </script>
+</body>
+</html>
