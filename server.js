@@ -5,9 +5,13 @@ const axios = require('axios');
 const path = require('path');
 const musicRouter = require('./routes/music');
 const db = require('./db');
+const bcrypt = require('bcrypt');
+
 
 const app = express();
 const port = 3000;
+const saltRounds = 10; // 비밀번호 해싱을 위한 bcrypt 라운드 수
+
 
 // ✅ JSON 요청 파싱 미들웨어 추가!
 app.use(express.json());
@@ -66,7 +70,15 @@ app.post('/register', async (req, res) => {
         console.error('회원가입 실패:', err);
         return res.send('회원가입 실패');
       }
-      res.send('회원가입 성공!');
+      // 로그인 상태로 만들기 (세션에 사용자 정보 저장)
+req.session.user = {
+  username: username,
+  nickname: nickname
+};
+
+// 메인 페이지로 리디렉션
+res.redirect('/');
+
     });
   } catch (error) {
     console.error('서버 오류:', error);
@@ -80,26 +92,18 @@ app.post('/login', (req, res) => {
 
   const sql = 'SELECT * FROM users WHERE username = ?';
   db.query(sql, [username], async (err, results) => {
-    if (err) {
-      console.error('DB 오류:', err);
-      return res.send('서버 오류');
-    }
-
-    if (results.length === 0) {
-      return res.send('존재하지 않는 사용자입니다.');
-    }
+    if (err) return res.send('서버 오류');
+    if (results.length === 0) return res.send('존재하지 않는 사용자입니다.');
 
     const user = results[0];
     const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.send('비밀번호가 틀렸습니다.');
 
-    if (isMatch) {
-      req.session.username = user.username;
-      res.redirect('/');
-    } else {
-      res.send('비밀번호가 틀렸습니다.');
-    }
+    req.session.username = user.username;
+    res.send('로그인 성공!'); // 여기서 redirect 말고 '성공!' 텍스트만 반환
   });
 });
+
 
 // 로그아웃
 app.get('/logout', (req, res) => {
@@ -123,6 +127,27 @@ app.post('/music/play', async (req, res) => {
     res.status(500).send('추천 처리 실패');
   }
 });
+
+// // 위치 저장 요청
+// fetch('http://localhost:5000/save_location', {
+//   method: 'POST',
+//   headers: { 'Content-Type': 'application/json' },
+//   body: JSON.stringify({
+//     lat: 35.5,
+//     lon: 126.7,
+//     accuracy: 10
+//   })
+// }).then(res => res.json()).then(console.log);
+
+// // 위치 기반 음악 추천
+// fetch('http://localhost:5000/recommend_with_location', {
+//   method: 'POST',
+//   headers: { 'Content-Type': 'application/json' },
+//   body: JSON.stringify({
+//     emotion: "calm"
+//   })
+// }).then(res => res.json()).then(console.log);
+
 
 // ───────────────────────────────────────
 // ✅ 서버 실행

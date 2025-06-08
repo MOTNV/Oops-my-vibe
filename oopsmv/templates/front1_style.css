@@ -323,13 +323,14 @@ body, html {
 .modal-input {
   display: block;
   width: 100%;
-  padding: 12px 16px;  /* 좌/우 패딩 */
-  margin: 0;           /* 혹시 남은 기본 margin 제거 */
+  padding: 12px 16px;
+  margin-bottom: 14px;  /* ✅ 입력 필드 간 간격 추가 */
   border-radius: 8px;
   border: 1px solid #EEE;
   background: #F8F8F8;
   transition: border-color 0.2s;
 }
+
 .modal-input:focus {
   outline: none;
   border-color: #ff99c8;
@@ -479,9 +480,85 @@ body, html {
   transform: translateY(-2px);
 }
 
+
+.user-dropdown {
+  display: none;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-120%) translateY(55px); /* 수평 중앙 정렬 + 아래로 px 내려줌 */
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 3000;
+  min-width: 120px;
+  text-align: left;
+  overflow: hidden;
+}
+
+/* 드롭다운 안의 버튼 스타일 */
+.user-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  background: white;
+  border: none;
+  font-size: 14px;
+  color: #333;
+  text-align: left;
+  cursor: pointer;
+  font-family: 'Nanum Gothic', sans-serif;
+  transition: background 0.2s ease;
+}
+
+.user-dropdown button:hover {
+  background: #f3f3f3;
+  color: #ff69b4;
+}
+
+
+
 .login-username {
   color: white;               /* 기본 글씨색 흰색 */
   font-weight: bold;
   text-decoration: none;
   transition: color 0.3s ease, transform 0.2s ease;
+}
+/* CSS 스타일 */
+.user-info {
+  position: relative;
+  display: inline-block;
+  font-family: 'Noto Sans KR', sans-serif;
+  margin: 20px;
+  color: white;
+}
+
+.logout-popup {
+  position: absolute;
+  top: 100%; /* username 아래에 위치 */
+  left: 0;
+  margin-top: 6px;
+  background-color: white;
+  color: black;
+  border-radius: 8px;
+  padding: 5px 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  display: none; /* 기본은 숨김 */
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.user-info:hover .logout-popup {
+  display: block; /* hover 시 표시 */
+}
+
+.logout-popup button {
+  background: none;
+  border: none;
+  color: black;
+  font-size: 14px;
+  cursor: pointer;
+}
+.logout-popup button:hover {
+  text-decoration: underline;
 }
